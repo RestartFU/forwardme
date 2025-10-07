@@ -1,0 +1,5 @@
+Email = 'contact@restartfu.com'
+CertificatesPath = 'certmagic'
+
+[Routes]
+'restartfu.com' = 'http://localhost:1234'
