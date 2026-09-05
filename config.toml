@@ -1,5 +1,5 @@
 Email = 'contact@restartfu.com'
-CertificatesPath = 'certmagic'
+CertificatesPath = '/var/lib/forwardme/certmagic'
 
 [Routes]
-'restartfu.com' = 'http://localhost:1234'
+'vault.restartfu.com' = 'http://vaultwarden:80'
