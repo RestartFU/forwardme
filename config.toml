@@ -1,5 +1,6 @@
 Email = 'contact@restartfu.com'
 CertificatesPath = '/var/lib/forwardme/certmagic'
+CloudflareAPITokenFile = '/run/secrets/cloudflare_api_token'
 
 [Routes]
 'vault.restartfu.com' = 'http://vaultwarden:80'

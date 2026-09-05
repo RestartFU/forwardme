@@ -12,6 +12,7 @@ import (
 	"strings"
 
 	"github.com/caddyserver/certmagic"
+	"github.com/libdns/cloudflare"
 	"github.com/restartfu/forwardme/internal/config"
 	"github.com/restartfu/gophig"
 )
@@ -46,6 +47,21 @@ func loadConfig(configPath string) (config.Config, error) {
 			return defaultConfig, fmt.Errorf("could not save default config: %w", err)
 		}
 		return config.Config{}, fmt.Errorf("could not load config: %w", err)
+	}
+	if conf.CloudflareAPITokenFile != "" {
+		tokenBytes, err := os.ReadFile(conf.CloudflareAPITokenFile)
+		if err != nil {
+			return config.Config{}, fmt.Errorf("could not read Cloudflare API token file: %w", err)
+		}
+		token := strings.TrimSpace(string(tokenBytes))
+		if token == "" {
+			return config.Config{}, fmt.Errorf("Cloudflare API token file is empty")
+		}
+		certmagic.DefaultACME.DNS01Solver = &certmagic.DNS01Solver{
+			DNSManager: certmagic.DNSManager{
+				DNSProvider: &cloudflare.Provider{APIToken: token},
+			},
+		}
 	}
 	return conf, nil
 }
