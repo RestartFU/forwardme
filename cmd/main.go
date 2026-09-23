@@ -25,6 +25,11 @@ func main() {
 
 	routes := cfg.Routes
 	domains := slices.Collect(maps.Keys(routes))
+	forwarders, err := startForwarders(cfg.TCPRoutes, cfg.UDPRoutes)
+	if err != nil {
+		log.Fatalln(err)
+	}
+	defer forwarders.Close()
 
 	handler := http.HandlerFunc(handleFunc(routes))
 
@@ -34,7 +39,9 @@ func main() {
 
 	log.Println("Starting HTTPS reverse proxy with automatic Let's Encrypt...")
 	log.Println("Domains:", domains)
-	log.Fatal(certmagic.HTTPS(domains, handler))
+	if err := certmagic.HTTPS(domains, handler); err != nil {
+		log.Fatal(err)
+	}
 }
 
 func loadConfig(configPath string) (config.Config, error) {
