@@ -51,9 +51,9 @@ func TestLoadConfigRejectsMissingCloudflareTokenFile(t *testing.T) {
 	}
 }
 
-func TestLoadConfigRawRoutes(t *testing.T) {
+func TestLoadConfigTCPRoutes(t *testing.T) {
 	configPath := filepath.Join(t.TempDir(), "config.toml")
-	contents := "[TCPRoutes]\n':25565' = 'java:25565'\n[UDPRoutes]\n':19132' = 'bedrock:19132'\n"
+	contents := "[TCPRoutes]\n':25565' = 'java:25565'\n"
 	if err := os.WriteFile(configPath, []byte(contents), 0o600); err != nil {
 		t.Fatal(err)
 	}
@@ -61,7 +61,7 @@ func TestLoadConfigRawRoutes(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	if cfg.TCPRoutes[":25565"] != "java:25565" || cfg.UDPRoutes[":19132"] != "bedrock:19132" {
-		t.Fatalf("raw routes were not loaded: TCP=%v UDP=%v", cfg.TCPRoutes, cfg.UDPRoutes)
+	if cfg.TCPRoutes[":25565"] != "java:25565" {
+		t.Fatalf("TCP routes were not loaded: %v", cfg.TCPRoutes)
 	}
 }

@@ -22,7 +22,7 @@ func TestTCPForwarding(t *testing.T) {
 		io.Copy(conn, conn)
 	}()
 
-	f, err := startForwarders(map[string]string{"127.0.0.1:0": backend.Addr().String()}, nil)
+	f, err := startForwarders(map[string]string{"127.0.0.1:0": backend.Addr().String()})
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -42,49 +42,8 @@ func TestTCPForwarding(t *testing.T) {
 	}
 }
 
-func TestUDPForwardingKeepsClientsSeparate(t *testing.T) {
-	backend, err := net.ListenUDP("udp", &net.UDPAddr{IP: net.IPv4(127, 0, 0, 1)})
-	if err != nil {
-		t.Fatal(err)
-	}
-	defer backend.Close()
-	go func() {
-		buf := make([]byte, 65535)
-		for {
-			n, addr, err := backend.ReadFromUDP(buf)
-			if err != nil {
-				return
-			}
-			backend.WriteToUDP(buf[:n], addr)
-		}
-	}()
-
-	f, err := startForwarders(nil, map[string]string{"127.0.0.1:0": backend.LocalAddr().String()})
-	if err != nil {
-		t.Fatal(err)
-	}
-	defer f.Close()
-	addr := f.listeners[0].(*net.UDPConn).LocalAddr().(*net.UDPAddr)
-	for _, message := range []string{"first", "second"} {
-		client, err := net.DialUDP("udp", nil, addr)
-		if err != nil {
-			t.Fatal(err)
-		}
-		client.SetDeadline(time.Now().Add(3 * time.Second))
-		if _, err := client.Write([]byte(message)); err != nil {
-			t.Fatal(err)
-		}
-		buf := make([]byte, 32)
-		n, err := client.Read(buf)
-		client.Close()
-		if err != nil || string(buf[:n]) != message {
-			t.Fatalf("UDP reply = %q, %v", buf[:n], err)
-		}
-	}
-}
-
 func TestForwardersRejectInvalidTarget(t *testing.T) {
-	if _, err := startForwarders(map[string]string{"127.0.0.1:0": "missing-port"}, nil); err == nil {
+	if _, err := startForwarders(map[string]string{"127.0.0.1:0": "missing-port"}); err == nil {
 		t.Fatal("expected invalid target to fail startup")
 	}
 }

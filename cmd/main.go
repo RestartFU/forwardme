@@ -25,7 +25,7 @@ func main() {
 
 	routes := cfg.Routes
 	domains := slices.Collect(maps.Keys(routes))
-	forwarders, err := startForwarders(cfg.TCPRoutes, cfg.UDPRoutes)
+	forwarders, err := startForwarders(cfg.TCPRoutes)
 	if err != nil {
 		log.Fatalln(err)
 	}
